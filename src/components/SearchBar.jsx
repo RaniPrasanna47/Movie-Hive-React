@@ -1,26 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import "./SearchBar.css";
 
 function SearchBar({ onSearch }) {
   const [input, setInput] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!input.trim()) {
-      alert("Please enter a movie title to search.");
-      return;
-    }
-    onSearch(input.trim());
-  };
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      onSearch(input.trim());
+    }, 400); // debounce for smoother search
+    return () => clearTimeout(delayDebounce);
+  }, [input, onSearch]);
 
   return (
     <motion.form
       className="search-bar"
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
     >
       <input
         type="text"
@@ -28,7 +24,15 @@ function SearchBar({ onSearch }) {
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
-      <button type="submit">Search</button>
+      <button
+        type="submit"
+        onClick={(e) => {
+          e.preventDefault();
+          if (!input.trim()) alert("Please enter a movie title.");
+        }}
+      >
+        Search
+      </button>
     </motion.form>
   );
 }

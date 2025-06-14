@@ -1,52 +1,65 @@
 import { useState, useEffect } from "react";
-import { searchMovies } from "../api/movieApi";
+import { searchMovies, getMovieDetails } from "../api/movieApi";
 import MovieCard from "../components/MovieCard";
 import SearchBar from "../components/SearchBar";
-import { motion } from "framer-motion";
 import "./Home.css";
 
 function Home() {
-  const [movies, setMovies] = useState([]);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState(false);
+  const [movies, setMovies] = useState([]);
+
+  const popularMovieIds = [
+    "tt0111161", // The Shawshank Redemption
+    "tt0068646", // The Godfather
+    "tt0468569", // The Dark Knight
+    "tt0108052", // Schindler's List
+    "tt0167260", // Return of the King
+    "tt0133093", // The Matrix
+    "tt0120737", // Fellowship of the Ring
+    "tt0109830", // Forrest Gump
+  ];
+
+  const fetchPopularMovies = async () => {
+    const results = await Promise.all(
+      popularMovieIds.map((id) => getMovieDetails(id).then((res) => res.data))
+    );
+    setMovies(results);
+  };
+
+  const fetchMatchingMovies = async () => {
+    const pagesToSearch = [1, 2, 3];
+    const allResults = [];
+
+    for (const page of pagesToSearch) {
+      const res = await searchMovies(query, page);
+      if (res.data.Search) {
+        allResults.push(...res.data.Search);
+      }
+    }
+
+    const uniqueMovies = Array.from(
+      new Map(allResults.map((m) => [m.imdbID, m])).values()
+    );
+
+    const filtered = uniqueMovies.filter((movie) =>
+      movie.Title.toLowerCase().startsWith(query.toLowerCase())
+    );
+
+    setMovies(filtered);
+  };
 
   useEffect(() => {
-    if (query) {
-      searchMovies(query).then((res) => {
-        if (res.data.Response === "True") {
-          setMovies(res.data.Search);
-          setError(false);
-        } else {
-          setMovies([]);
-          setError(true);
-        }
-      });
+    if (query.trim()) {
+      fetchMatchingMovies();
+    } else {
+      fetchPopularMovies();
     }
   }, [query]);
 
   return (
     <div className="home">
       <SearchBar onSearch={setQuery} />
-      {query === "" && (
-        <motion.div
-          className="welcome-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h2>Explore the movies you like 🍿</h2>
-        </motion.div>
-      )}
-
-      {error && (
-        <motion.div
-          className="error-card"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <p>Movie does not exist.</p>
-        </motion.div>
-      )}
-
+      <h2 className="popular-heading">Popular Movies</h2>
       <div className="movie-grid">
         {movies.map((movie) => (
           <MovieCard key={movie.imdbID} movie={movie} />

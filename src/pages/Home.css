@@ -11,20 +11,11 @@
   margin-top: 2rem;
 }
 
-.welcome-card, .error-card {
-  background: #fff;
-  color: #111;
-  padding: 1.5rem 2rem;
-  margin: 2rem auto;
-  border-radius: 10px;
-  width: fit-content;
+.popular-heading {
   text-align: center;
-  box-shadow: 0 0 12px rgba(0,0,0,0.2);
-}
-
-.error-card {
-  color: red;
-  font-weight: bold;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #f7f7f7;
 }
 
 @media (min-width: 768px) {
