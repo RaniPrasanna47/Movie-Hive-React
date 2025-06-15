@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_KEY = "75440bac"; // 🔑 Replace with your OMDb API key
+const API_KEY = "75440bac"; 
 const BASE_URL = "https://www.omdbapi.com/";
 
 // Search by title keyword with optional pagination
